@@ -15,6 +15,38 @@ const options: swaggerJsdoc.Options = {
         description: "Local development server",
       },
     ],
+    components: {
+      schemas: {
+        AuthUser: {
+          type: "object",
+          properties: {
+            id: {
+              type: "string",
+              format: "uuid",
+              example: "a54200b8-95b6-484e-97f4-3da39927a366",
+            },
+            email: {
+              type: "string",
+              format: "email",
+              example: "jean@example.com",
+            },
+            firstName: {
+              type: "string",
+              example: "Jean",
+            },
+            lastName: {
+              type: "string",
+              example: "de Dieu",
+            },
+            role: {
+              type: "string",
+              enum: ["student", "educator", "admin"],
+              example: "student",
+            },
+          },
+        },
+      },
+    },
   },
   apis: ["./src/**/*.ts"],
 };
