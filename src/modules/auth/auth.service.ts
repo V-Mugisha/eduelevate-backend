@@ -15,11 +15,19 @@ const JWT_EXPIRES_IN = "7d";
 interface JwtPayload {
   userId: string;
   email: string;
+  firstName: string;
+  lastName: string;
   role: string;
 }
 
-function generateToken(userId: string, email: string, role: string): string {
-  const payload: JwtPayload = { userId, email, role };
+function generateToken(
+  userId: string,
+  email: string,
+  firstName: string,
+  lastName: string,
+  role: string,
+): string {
+  const payload: JwtPayload = { userId, email, firstName, lastName, role };
   return jwt.sign(payload, JWT_SECRET, { expiresIn: JWT_EXPIRES_IN });
 }
 
@@ -50,7 +58,7 @@ export async function registerStudent(data: StudentRegisterInput): Promise<AuthR
     },
   );
 
-  const token = generateToken(user.id, user.email, user.role.name);
+  const token = generateToken(user.id, user.email, user.firstName, user.lastName, user.role.name);
 
   return {
     message: "Student account created successfully",
@@ -97,7 +105,7 @@ export async function registerEducator(data: EducatorRegisterInput): Promise<Aut
     },
   );
 
-  const token = generateToken(user.id, user.email, user.role.name);
+  const token = generateToken(user.id, user.email, user.firstName, user.lastName, user.role.name);
 
   return {
     message: "Educator account created successfully",
@@ -129,7 +137,7 @@ export async function login(data: LoginInput): Promise<AuthResponse> {
     throw new ServiceError("Invalid email or password", 401);
   }
 
-  const token = generateToken(user.id, user.email, user.role.name);
+  const token = generateToken(user.id, user.email, user.firstName, user.lastName, user.role.name);
 
   return {
     message: "Login successful",
