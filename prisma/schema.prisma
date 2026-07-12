@@ -1,8 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
   provider = "prisma-client"
   output   = "./generated"
@@ -10,4 +5,88 @@ generator client {
 
 datasource db {
   provider = "postgresql"
+}
+
+enum GradeLevel {
+  S4
+  S5
+  S6
+}
+
+model User {
+  id            String   @id @default(uuid()) @db.Uuid
+  email         String   @unique
+  passwordHash  String   @map("password_hash")
+  firstName     String   @map("first_name")
+  lastName      String   @map("last_name")
+  isActive      Boolean  @default(true) @map("is_active")
+  roleId        String   @map("role_id") @db.Uuid
+  role          Role     @relation(fields: [roleId], references: [id])
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  studentProfile  StudentProfile?
+  educatorProfile EducatorProfile?
+
+  @@map("users")
+}
+
+model StudentProfile {
+  id         String     @id @default(uuid()) @db.Uuid
+  userId     String     @unique @map("user_id") @db.Uuid
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  schoolName String     @map("school_name")
+  grade      GradeLevel
+  createdAt  DateTime   @default(now()) @map("created_at")
+  updatedAt  DateTime   @updatedAt @map("updated_at")
+
+  @@map("student_profiles")
+}
+
+model EducatorProfile {
+  id               String   @id @default(uuid()) @db.Uuid
+  userId           String   @unique @map("user_id") @db.Uuid
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  isIndependent    Boolean  @default(false) @map("is_independent")
+  organizationName String?  @map("organization_name")
+  expertiseAreas   String[] @map("expertise_areas")
+  yearsOfExperience Int?    @map("years_of_experience")
+  bio              String
+  createdAt        DateTime @default(now()) @map("created_at")
+  updatedAt        DateTime @updatedAt @map("updated_at")
+
+  @@map("educator_profiles")
+}
+
+model Role {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users             User[]
+  rolePermissions   RolePermission[]
+
+  @@map("roles")
+}
+
+model Permission {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  rolePermissions RolePermission[]
+
+  @@map("permissions")
+}
+
+model RolePermission {
+  roleId       String @map("role_id") @db.Uuid
+  permissionId String @map("permission_id") @db.Uuid
+  role         Role   @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   Permission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+  @@map("role_permissions")
 }
