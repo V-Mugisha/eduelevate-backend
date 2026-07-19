@@ -7,6 +7,7 @@ import type {
   AuthResponse,
 } from "./auth.dto.js";
 import * as authRepository from "./auth.repository.js";
+import { createAuditLog } from "@/lib/auditLog";
 
 const SALT_ROUNDS = 12;
 const JWT_SECRET = process.env["JWT_SECRET"] ?? "eduelevate_jwt_secret_dev";
@@ -60,6 +61,16 @@ export async function registerStudent(data: StudentRegisterInput): Promise<AuthR
 
   const token = generateToken(user.id, user.email, user.firstName, user.lastName, user.role.name);
 
+  // Fire-and-forget — audit log failures must not break registration.
+  createAuditLog({
+    action: "auth:register_student",
+    entityType: "user",
+    entityId: user.id,
+    performedBy: user.id,
+    details: { email: data.email, schoolName: data.schoolName, grade: data.grade },
+    status: "success",
+  }).catch(() => {});
+
   return {
     message: "Student account created successfully",
     data: {
@@ -107,6 +118,20 @@ export async function registerEducator(data: EducatorRegisterInput): Promise<Aut
 
   const token = generateToken(user.id, user.email, user.firstName, user.lastName, user.role.name);
 
+  // Fire-and-forget — audit log failures must not break registration.
+  createAuditLog({
+    action: "auth:register_educator",
+    entityType: "user",
+    entityId: user.id,
+    performedBy: user.id,
+    details: {
+      email: data.email,
+      isIndependent: data.isIndependent,
+      expertiseAreas: data.expertiseAreas,
+    },
+    status: "success",
+  }).catch(() => {});
+
   return {
     message: "Educator account created successfully",
     data: {
@@ -124,7 +149,15 @@ export async function registerEducator(data: EducatorRegisterInput): Promise<Aut
 
 export async function login(data: LoginInput): Promise<AuthResponse> {
   const user = await authRepository.findUserByEmail(data.email);
+
   if (!user) {
+    // Fire-and-forget — log failed attempt with unknown user.
+    createAuditLog({
+      action: "auth:login_failed",
+      entityType: "user",
+      details: { email: data.email, reason: "user_not_found" },
+      status: "failure",
+    }).catch(() => {});
     throw new ServiceError("Invalid email or password", 401);
   }
 
@@ -134,10 +167,28 @@ export async function login(data: LoginInput): Promise<AuthResponse> {
 
   const isPasswordValid = await bcrypt.compare(data.password, user.passwordHash);
   if (!isPasswordValid) {
+    // Fire-and-forget — log failed attempt for known user.
+    createAuditLog({
+      action: "auth:login_failed",
+      entityType: "user",
+      entityId: user.id,
+      performedBy: user.id,
+      details: { email: data.email, reason: "wrong_password" },
+      status: "failure",
+    }).catch(() => {});
     throw new ServiceError("Invalid email or password", 401);
   }
 
   const token = generateToken(user.id, user.email, user.firstName, user.lastName, user.role.name);
+
+  // Fire-and-forget — log successful login.
+  createAuditLog({
+    action: "auth:login",
+    entityType: "user",
+    entityId: user.id,
+    performedBy: user.id,
+    status: "success",
+  }).catch(() => {});
 
   return {
     message: "Login successful",

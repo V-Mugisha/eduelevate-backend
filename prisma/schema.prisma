@@ -90,3 +90,22 @@ model RolePermission {
   @@id([roleId, permissionId])
   @@map("role_permissions")
 }
+
+model AuditLog {
+  id          String   @id @default(uuid()) @db.Uuid
+  action      String
+  entityType  String   @map("entity_type")
+  entityId    String?  @map("entity_id") @db.Uuid
+  performedBy String?  @map("performed_by") @db.Uuid
+  details     Json?
+  ipAddress   String?  @map("ip_address")
+  userAgent   String?  @map("user_agent")
+  status      String   @default("success")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@index([action])
+  @@index([entityType, entityId])
+  @@index([performedBy])
+  @@index([createdAt])
+  @@map("audit_logs")
+}
