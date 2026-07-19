@@ -27,6 +27,7 @@ model User {
 
   studentProfile  StudentProfile?
   educatorProfile EducatorProfile?
+  courses         Course[]
 
   @@map("users")
 }
@@ -108,4 +109,35 @@ model AuditLog {
   @@index([performedBy])
   @@index([createdAt])
   @@map("audit_logs")
+}
+
+model Category {
+  id          String   @id @default(uuid()) @db.Uuid
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  courses Course[]
+
+  @@map("categories")
+}
+
+model Course {
+  id           String    @id @default(uuid()) @db.Uuid
+  title        String
+  subtitle     String?
+  description  String
+  categoryId   String    @map("category_id") @db.Uuid
+  category     Category  @relation(fields: [categoryId], references: [id])
+  level        String    @default("beginner")
+  duration     String?
+  isPublished  Boolean   @default(false) @map("is_published")
+  createdBy    String    @map("created_by") @db.Uuid
+  creator      User      @relation(fields: [createdBy], references: [id])
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  @@index([categoryId])
+  @@index([createdBy])
+  @@map("courses")
 }
