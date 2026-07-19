@@ -5,12 +5,14 @@ import swaggerUi from "swagger-ui-express";
 import { swaggerSpec } from "./swagger.js";
 import routes from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
+import requestLogger from "./middleware/requestLogger.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
 
 app.use(cors({ origin: true, credentials: true }));
 app.use(express.json());
+app.use(requestLogger);
 
 app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
