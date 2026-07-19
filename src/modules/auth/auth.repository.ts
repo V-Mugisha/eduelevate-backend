@@ -39,6 +39,24 @@ export function findUserByEmail(email: string) {
   });
 }
 
+export function findUserByIdForAuth(userId: string) {
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      passwordHash: true,
+      isActive: true,
+    },
+  });
+}
+
+export function updateUserPassword(userId: string, passwordHash: string) {
+  return prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash },
+  });
+}
+
 export function findRoleByName(name: string) {
   return prisma.role.findUnique({ where: { name } });
 }

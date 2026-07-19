@@ -1,6 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
-import { studentRegisterSchema, educatorRegisterSchema, loginSchema } from "./auth.dto.js";
+import {
+  studentRegisterSchema,
+  educatorRegisterSchema,
+  loginSchema,
+  changePasswordSchema,
+} from "./auth.dto.js";
 import * as authService from "./auth.service.js";
 
 function handleControllerError(error: unknown, res: Response, next: NextFunction) {
@@ -37,6 +42,21 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     const data = loginSchema.parse(req.body);
     const result = await authService.login(data);
     res.status(200).json(result);
+  } catch (error) {
+    handleControllerError(error, res, next);
+  }
+}
+
+export async function changePassword(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Authentication required" });
+      return;
+    }
+    const data = changePasswordSchema.parse(req.body);
+    await authService.changePassword(userId, data.currentPassword, data.newPassword);
+    res.json({ message: "Password changed successfully" });
   } catch (error) {
     handleControllerError(error, res, next);
   }

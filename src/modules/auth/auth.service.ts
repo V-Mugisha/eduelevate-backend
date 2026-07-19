@@ -205,6 +205,22 @@ export async function login(data: LoginInput): Promise<AuthResponse> {
   };
 }
 
+export async function changePassword(userId: string, currentPassword: string, newPassword: string) {
+  const fullUser = await authRepository.findUserByIdForAuth(userId);
+  if (!fullUser) {
+    throw new ServiceError("User not found", 404);
+  }
+
+  const isCurrentPasswordValid = await bcrypt.compare(currentPassword, fullUser.passwordHash);
+  if (!isCurrentPasswordValid) {
+    throw new ServiceError("Current password is incorrect", 401);
+  }
+
+  const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
+
+  await authRepository.updateUserPassword(userId, passwordHash);
+}
+
 export class ServiceError extends Error {
   statusCode: number;
 

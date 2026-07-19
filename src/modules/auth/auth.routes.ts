@@ -1,4 +1,5 @@
 import { Router } from "express";
+import { authenticate } from "@/middleware/authMiddleware";
 import * as authController from "./auth.controller.js";
 
 const router = Router();
@@ -194,5 +195,7 @@ router.post("/register/educator", authController.registerEducator);
  *         description: Account deactivated
  */
 router.post("/login", authController.login);
+
+router.put("/change-password", authenticate, authController.changePassword);
 
 export default router;
