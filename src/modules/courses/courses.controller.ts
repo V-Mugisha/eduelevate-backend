@@ -1,6 +1,11 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
-import { createCourseSchema, updateCourseSchema, courseQuerySchema, publishCourseSchema } from "./courses.dto.js";
+import {
+  createCourseSchema,
+  updateCourseSchema,
+  courseQuerySchema,
+  publishCourseSchema,
+} from "./courses.dto.js";
 import * as coursesService from "./courses.service.js";
 
 function handleError(error: unknown, res: Response, next: NextFunction) {
@@ -67,7 +72,12 @@ export async function updateCourse(req: Request, res: Response, next: NextFuncti
       return;
     }
     const data = updateCourseSchema.parse(req.body);
-    const course = await coursesService.update(req.params.id as string, data, userId, req.user?.role);
+    const course = await coursesService.update(
+      req.params.id as string,
+      data,
+      userId,
+      req.user?.role,
+    );
     res.json({ data: course });
   } catch (error) {
     handleError(error, res, next);
@@ -82,7 +92,12 @@ export async function publishCourse(req: Request, res: Response, next: NextFunct
       return;
     }
     const { publish } = publishCourseSchema.parse(req.body);
-    const course = await coursesService.setPublishStatus(userId, req.params.id as string, publish, req.user?.role);
+    const course = await coursesService.setPublishStatus(
+      userId,
+      req.params.id as string,
+      publish,
+      req.user?.role,
+    );
     res.json({ data: course });
   } catch (error) {
     handleError(error, res, next);
