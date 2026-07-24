@@ -15,9 +15,12 @@ const defaultSelect = {
       id: true,
       title: true,
       subtitle: true,
-      content: true,
       createdAt: true,
       updatedAt: true,
+      sections: {
+        select: { id: true, title: true, content: true, order: true },
+        orderBy: { order: "asc" as const },
+      },
     },
     orderBy: { createdAt: "asc" as const },
   },

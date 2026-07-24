@@ -1,19 +1,17 @@
 import { prisma } from "@/lib/prisma";
-import DOMPurify from "isomorphic-dompurify";
 import type { CreateLessonInput, UpdateLessonInput } from "./lessons.dto.js";
-
-function sanitizeHtml(html: string): string {
-  return DOMPurify.sanitize(html, { ALLOWED_TAGS: ["b", "i", "h2", "p", "br", "strong", "em"] });
-}
 
 const defaultSelect = {
   id: true,
   moduleId: true,
   title: true,
   subtitle: true,
-  content: true,
   createdAt: true,
   updatedAt: true,
+  sections: {
+    select: { id: true, title: true, content: true, order: true },
+    orderBy: { order: "asc" as const },
+  },
 };
 
 export function findLessonsByModuleId(moduleId: string) {
@@ -30,12 +28,7 @@ export function findLessonById(id: string) {
 
 export function createLesson(moduleId: string, data: CreateLessonInput) {
   return prisma.lesson.create({
-    data: {
-      moduleId,
-      title: data.title,
-      subtitle: data.subtitle ?? null,
-      content: sanitizeHtml(data.content),
-    },
+    data: { moduleId, title: data.title, subtitle: data.subtitle ?? null },
     select: defaultSelect,
   });
 }
@@ -44,7 +37,6 @@ export function updateLesson(id: string, data: UpdateLessonInput) {
   const updateData: Record<string, unknown> = {};
   if (data.title !== undefined) updateData.title = data.title;
   if (data.subtitle !== undefined) updateData.subtitle = data.subtitle;
-  if (data.content !== undefined) updateData.content = sanitizeHtml(data.content);
   return prisma.lesson.update({ where: { id }, data: updateData, select: defaultSelect });
 }
 

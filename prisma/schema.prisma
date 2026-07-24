@@ -28,6 +28,7 @@ model User {
   studentProfile  StudentProfile?
   educatorProfile EducatorProfile?
   courses         Course[]
+  enrollments     Enrollment[]
 
   @@map("users")
 }
@@ -139,6 +140,7 @@ model Course {
 
   @@index([categoryId])
   modules Module[]
+  enrollments Enrollment[]
 
   @@index([createdBy])
   @@map("courses")
@@ -167,10 +169,50 @@ model Lesson {
   module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   title     String
   subtitle  String?
-  content   String
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  sections Section[]
+
   @@index([moduleId])
   @@map("topics")
+}
+
+model Enrollment {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  courseId  String   @map("course_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  completedLessons LessonCompletion[]
+
+  @@unique([userId, courseId])
+  @@map("enrollments")
+}
+
+model LessonCompletion {
+  id           String     @id @default(uuid()) @db.Uuid
+  enrollmentId String     @map("enrollment_id") @db.Uuid
+  enrollment   Enrollment @relation(fields: [enrollmentId], references: [id], onDelete: Cascade)
+  lessonId     String     @map("lesson_id") @db.Uuid
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@unique([enrollmentId, lessonId])
+  @@map("lesson_completions")
+}
+
+model Section {
+  id        String   @id @default(uuid()) @db.Uuid
+  lessonId  String   @map("lesson_id") @db.Uuid
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title     String?
+  content   String
+  order     Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([lessonId])
+  @@map("sections")
 }

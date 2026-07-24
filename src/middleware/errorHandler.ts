@@ -1,13 +1,18 @@
 import type { Request, Response, NextFunction } from "express";
-import { ServiceError } from "@/modules/auth/auth.service.js";
 
-export function errorHandler(error: Error, _req: Request, res: Response, _next: NextFunction) {
-  res.locals.error = error;
+interface HttpError extends Error {
+  statusCode?: number;
+}
 
-  if (error instanceof ServiceError) {
-    res.status(error.statusCode).json({ message: error.message });
-    return;
+export function errorHandler(error: HttpError, _req: Request, res: Response, _next: NextFunction) {
+  const statusCode = error.statusCode ?? 500;
+  const message =
+    statusCode >= 500 ? "An unexpected error occurred. Please try again later." : error.message;
+
+  if (statusCode >= 500) {
+    console.error("Unhandled error:", error);
   }
 
-  res.status(500).json({ message: "An unexpected error occurred. Please try again later." });
+  res.locals.error = error;
+  res.status(statusCode).json({ message });
 }
