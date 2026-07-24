@@ -39,6 +39,8 @@ router.get("/", lessonsController.listLessons);
  *     responses:
  *       200:
  *         description: Lesson details
+ *       404:
+ *         description: Lesson not found
  */
 router.get("/:id", lessonsController.getLesson);
 
@@ -55,11 +57,29 @@ router.get("/:id", lessonsController.getLesson);
  *         name: moduleId
  *         required: true
  *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: HTML Document Structure
+ *               subtitle:
+ *                 type: string
  *     responses:
  *       201:
  *         description: Lesson created
+ *       400:
+ *         description: Validation error
  *       401:
  *         description: Authentication required
+ *       403:
+ *         description: Not authorized
  */
 router.post("/", authenticate, lessonsController.createLesson);
 
@@ -80,9 +100,28 @@ router.post("/", authenticate, lessonsController.createLesson);
  *         name: id
  *         required: true
  *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               subtitle:
+ *                 type: string
  *     responses:
  *       200:
  *         description: Lesson updated
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Authentication required
+ *       403:
+ *         description: Not authorized
+ *       404:
+ *         description: Lesson not found
  */
 router.put("/:id", authenticate, lessonsController.updateLesson);
 
@@ -106,6 +145,12 @@ router.put("/:id", authenticate, lessonsController.updateLesson);
  *     responses:
  *       200:
  *         description: Lesson deleted
+ *       401:
+ *         description: Authentication required
+ *       403:
+ *         description: Not authorized
+ *       404:
+ *         description: Lesson not found
  */
 router.delete("/:id", authenticate, lessonsController.deleteLesson);
 

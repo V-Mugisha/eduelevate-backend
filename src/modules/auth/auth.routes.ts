@@ -196,6 +196,46 @@ router.post("/register/educator", authController.registerEducator);
  */
 router.post("/login", authController.login);
 
+/**
+ * @swagger
+ * /api/auth/change-password:
+ *   put:
+ *     summary: Change password
+ *     description: Updates the authenticated user's password. Requires the current password for verification.
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - currentPassword
+ *               - newPassword
+ *               - confirmNewPassword
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 example: OldPass1
+ *               newPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 example: NewPass1
+ *               confirmNewPassword:
+ *                 type: string
+ *                 minLength: 8
+ *                 example: NewPass1
+ *     responses:
+ *       200:
+ *         description: Password changed successfully
+ *       400:
+ *         description: Validation error or passwords do not match
+ *       401:
+ *         description: Authentication required or current password is incorrect
+ */
 router.put("/change-password", authenticate, authController.changePassword);
 
 export default router;

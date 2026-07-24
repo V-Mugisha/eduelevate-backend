@@ -39,6 +39,8 @@ router.get("/", modulesController.listModules);
  *     responses:
  *       200:
  *         description: Module with its lessons
+ *       404:
+ *         description: Module not found
  */
 router.get("/:id", modulesController.getModule);
 
@@ -55,11 +57,35 @@ router.get("/:id", modulesController.getModule);
  *         name: courseId
  *         required: true
  *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *             properties:
+ *               title:
+ *                 type: string
+ *                 example: Introduction to HTML
+ *               subtitle:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prerequisites:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       201:
  *         description: Module created
+ *       400:
+ *         description: Validation error
  *       401:
  *         description: Authentication required
+ *       403:
+ *         description: Not authorized
  */
 router.post("/", authenticate, modulesController.createModule);
 
@@ -80,9 +106,34 @@ router.post("/", authenticate, modulesController.createModule);
  *         name: id
  *         required: true
  *         schema: { type: string }
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               title:
+ *                 type: string
+ *               subtitle:
+ *                 type: string
+ *               description:
+ *                 type: string
+ *               prerequisites:
+ *                 type: array
+ *                 items:
+ *                   type: string
  *     responses:
  *       200:
  *         description: Module updated
+ *       400:
+ *         description: Validation error
+ *       401:
+ *         description: Authentication required
+ *       403:
+ *         description: Not authorized
+ *       404:
+ *         description: Module not found
  */
 router.put("/:id", authenticate, modulesController.updateModule);
 
@@ -106,6 +157,12 @@ router.put("/:id", authenticate, modulesController.updateModule);
  *     responses:
  *       200:
  *         description: Module deleted
+ *       401:
+ *         description: Authentication required
+ *       403:
+ *         description: Not authorized
+ *       404:
+ *         description: Module not found
  */
 router.delete("/:id", authenticate, modulesController.deleteModule);
 
