@@ -51,3 +51,59 @@ export function findCourseLessons(courseId: string) {
     select: { id: true },
   });
 }
+
+export function findEnrollmentsByCourse(courseId: string) {
+  return prisma.enrollment.findMany({
+    where: { courseId },
+    select: {
+      id: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          studentProfile: { select: { schoolName: true, grade: true } },
+        },
+      },
+      completedLessons: { select: { lessonId: true } },
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+export function findEnrollmentWithStudent(studentUserId: string, courseId: string) {
+  return prisma.enrollment.findUnique({
+    where: { userId_courseId: { userId: studentUserId, courseId } },
+    select: {
+      id: true,
+      createdAt: true,
+      user: {
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          studentProfile: { select: { schoolName: true, grade: true } },
+        },
+      },
+      completedLessons: { select: { lessonId: true } },
+    },
+  });
+}
+
+export function findModulesWithLessonTitles(courseId: string) {
+  return prisma.module.findMany({
+    where: { courseId },
+    select: {
+      id: true,
+      title: true,
+      lessons: {
+        select: { id: true, title: true },
+        orderBy: { createdAt: "asc" as const },
+      },
+    },
+    orderBy: { createdAt: "asc" as const },
+  });
+}

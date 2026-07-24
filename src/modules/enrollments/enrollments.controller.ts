@@ -46,6 +46,41 @@ export async function listMyEnrollments(req: Request, res: Response, next: NextF
   }
 }
 
+export async function listCourseStudents(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Auth required" });
+      return;
+    }
+    const students = await enrollmentsService.listCourseStudents(
+      userId,
+      req.params.courseId as string,
+    );
+    res.json({ data: students });
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function getStudentDetail(req: Request, res: Response, next: NextFunction) {
+  try {
+    const userId = req.user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: "Auth required" });
+      return;
+    }
+    const detail = await enrollmentsService.getStudentDetail(
+      userId,
+      req.params.courseId as string,
+      req.params.userId as string,
+    );
+    res.json({ data: detail });
+  } catch (error) {
+    next(error);
+  }
+}
+
 export async function completeLesson(req: Request, res: Response, next: NextFunction) {
   try {
     const userId = req.user?.userId;

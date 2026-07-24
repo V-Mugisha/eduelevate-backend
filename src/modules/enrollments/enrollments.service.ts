@@ -48,6 +48,87 @@ export async function listMyEnrollments(userId: string) {
   return result;
 }
 
+export async function listCourseStudents(userId: string, courseId: string) {
+  const course = await coursesRepository.findCourseById(courseId);
+  if (!course) throw new ServiceError("Course not found", 404);
+  if (course.creator.id !== userId) throw new ServiceError("Not authorized", 403);
+
+  const enrollments = await enrollmentsRepository.findEnrollmentsByCourse(courseId);
+  const liveLessons = await enrollmentsRepository.findCourseLessons(courseId);
+  const liveLessonIds = new Set(liveLessons.map((l) => l.id));
+  const totalLessons = liveLessons.length;
+
+  return enrollments.map((e) => {
+    const validCompletions = e.completedLessons.filter((cl) => liveLessonIds.has(cl.lessonId));
+    const progress =
+      totalLessons > 0 ? Math.round((validCompletions.length / totalLessons) * 100) : 0;
+    return {
+      id: e.id,
+      enrolledAt: e.createdAt,
+      completedCount: validCompletions.length,
+      totalLessons,
+      progress,
+      user: {
+        id: e.user.id,
+        firstName: e.user.firstName,
+        lastName: e.user.lastName,
+        email: e.user.email,
+        schoolName: e.user.studentProfile?.schoolName ?? null,
+        grade: e.user.studentProfile?.grade ?? null,
+      },
+    };
+  });
+}
+
+export async function getStudentDetail(
+  educatorUserId: string,
+  courseId: string,
+  studentUserId: string,
+) {
+  const course = await coursesRepository.findCourseById(courseId);
+  if (!course) throw new ServiceError("Course not found", 404);
+  if (course.creator.id !== educatorUserId) throw new ServiceError("Not authorized", 403);
+
+  const enrollment = await enrollmentsRepository.findEnrollmentWithStudent(studentUserId, courseId);
+  if (!enrollment) throw new ServiceError("Student not enrolled in this course", 404);
+
+  const [liveLessons, modules] = await Promise.all([
+    enrollmentsRepository.findCourseLessons(courseId),
+    enrollmentsRepository.findModulesWithLessonTitles(courseId),
+  ]);
+
+  const liveLessonIds = new Set(liveLessons.map((l) => l.id));
+  const validCompletions = enrollment.completedLessons.filter((cl) =>
+    liveLessonIds.has(cl.lessonId),
+  );
+  const completedLessonIds = validCompletions.map((cl) => cl.lessonId);
+  const totalLessons = liveLessons.length;
+  const progress =
+    totalLessons > 0 ? Math.round((validCompletions.length / totalLessons) * 100) : 0;
+
+  return {
+    enrollmentId: enrollment.id,
+    enrolledAt: enrollment.createdAt,
+    progress,
+    completedCount: validCompletions.length,
+    totalLessons,
+    completedLessonIds,
+    user: {
+      id: enrollment.user.id,
+      firstName: enrollment.user.firstName,
+      lastName: enrollment.user.lastName,
+      email: enrollment.user.email,
+      schoolName: enrollment.user.studentProfile?.schoolName ?? null,
+      grade: enrollment.user.studentProfile?.grade ?? null,
+    },
+    course: {
+      id: course.id,
+      title: course.title,
+    },
+    modules,
+  };
+}
+
 export async function completeLesson(userId: string, lessonId: string) {
   const mod = await prisma.module.findFirst({
     where: { lessons: { some: { id: lessonId } } },
