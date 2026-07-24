@@ -18,21 +18,32 @@ export async function getEnrollment(userId: string, courseId: string) {
   const enrollment = await enrollmentsRepository.findEnrollment(userId, courseId);
   if (!enrollment) return null;
 
-  const totalLessons = await enrollmentsRepository.countLessonsInCourse(courseId);
-  const progress =
-    totalLessons > 0 ? Math.round((enrollment.completedLessons.length / totalLessons) * 100) : 0;
+  const liveLessons = await enrollmentsRepository.findCourseLessons(courseId);
+  const liveLessonIds = new Set(liveLessons.map((l) => l.id));
+  const validCompletions = enrollment.completedLessons.filter((cl) =>
+    liveLessonIds.has(cl.lessonId),
+  );
 
-  return { ...enrollment, totalLessons, progress };
+  const totalLessons = liveLessons.length;
+  const progress =
+    totalLessons > 0 ? Math.round((validCompletions.length / totalLessons) * 100) : 0;
+
+  return { ...enrollment, completedLessons: validCompletions, totalLessons, progress };
 }
 
 export async function listMyEnrollments(userId: string) {
   const enrollments = await enrollmentsRepository.findEnrollmentsByUser(userId);
   const result = [];
   for (const e of enrollments) {
-    const totalLessons = await enrollmentsRepository.countLessonsInCourse(e.course.id);
+    const liveLessons = await enrollmentsRepository.findCourseLessons(e.course.id);
+    const liveLessonIds = new Set(liveLessons.map((l) => l.id));
+    const validCompletions = e.completedLessons.filter((cl) => liveLessonIds.has(cl.lessonId));
+
+    const totalLessons = liveLessons.length;
     const progress =
-      totalLessons > 0 ? Math.round((e.completedLessons.length / totalLessons) * 100) : 0;
-    result.push({ ...e, totalLessons, progress });
+      totalLessons > 0 ? Math.round((validCompletions.length / totalLessons) * 100) : 0;
+
+    result.push({ ...e, completedLessons: validCompletions, totalLessons, progress });
   }
   return result;
 }

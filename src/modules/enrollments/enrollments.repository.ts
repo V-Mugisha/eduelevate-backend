@@ -37,10 +37,6 @@ export function createEnrollment(userId: string, courseId: string) {
   });
 }
 
-export function countLessonsInCourse(courseId: string) {
-  return prisma.lesson.count({ where: { module: { courseId } } });
-}
-
 export function completeLesson(enrollmentId: string, lessonId: string) {
   return prisma.lessonCompletion.upsert({
     where: { enrollmentId_lessonId: { enrollmentId, lessonId } },
