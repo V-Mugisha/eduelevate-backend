@@ -5,8 +5,15 @@ import { prisma } from "@/lib/prisma";
 export async function enroll(userId: string, courseId: string) {
   const course = await coursesRepository.findCourseById(courseId);
   if (!course) throw new ServiceError("Course not found", 404);
+  if (!course.isPublished) throw new ServiceError("This course is not yet available", 400);
   if (course.creator.id === userId)
     throw new ServiceError("You cannot enroll in your own course", 400);
+
+  if (course.maxStudents !== null) {
+    const enrolledCount = await coursesRepository.countEnrollments(courseId);
+    if (enrolledCount >= course.maxStudents)
+      throw new ServiceError("This course has reached its maximum number of students", 409);
+  }
 
   const existing = await enrollmentsRepository.findEnrollment(userId, courseId);
   if (existing) throw new ServiceError("Already enrolled in this course", 409);
@@ -48,10 +55,11 @@ export async function listMyEnrollments(userId: string) {
   return result;
 }
 
-export async function listCourseStudents(userId: string, courseId: string) {
+export async function listCourseStudents(userId: string, courseId: string, userRole?: string) {
   const course = await coursesRepository.findCourseById(courseId);
   if (!course) throw new ServiceError("Course not found", 404);
-  if (course.creator.id !== userId) throw new ServiceError("Not authorized", 403);
+  if (userRole !== "admin" && course.creator.id !== userId)
+    throw new ServiceError("Not authorized", 403);
 
   const enrollments = await enrollmentsRepository.findEnrollmentsByCourse(courseId);
   const liveLessons = await enrollmentsRepository.findCourseLessons(courseId);
@@ -84,10 +92,12 @@ export async function getStudentDetail(
   educatorUserId: string,
   courseId: string,
   studentUserId: string,
+  userRole?: string,
 ) {
   const course = await coursesRepository.findCourseById(courseId);
   if (!course) throw new ServiceError("Course not found", 404);
-  if (course.creator.id !== educatorUserId) throw new ServiceError("Not authorized", 403);
+  if (userRole !== "admin" && course.creator.id !== educatorUserId)
+    throw new ServiceError("Not authorized", 403);
 
   const enrollment = await enrollmentsRepository.findEnrollmentWithStudent(studentUserId, courseId);
   if (!enrollment) throw new ServiceError("Student not enrolled in this course", 404);

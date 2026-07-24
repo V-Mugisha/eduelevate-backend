@@ -9,9 +9,14 @@ export const createCourseSchema = z.object({
     message: "Level must be beginner, intermediate, or advanced",
   }),
   duration: z.string().max(100).optional(),
+  maxStudents: z.number().int().min(1).optional(),
 });
 
 export const updateCourseSchema = createCourseSchema.partial();
+
+export const publishCourseSchema = z.object({
+  publish: z.boolean(),
+});
 
 export const courseQuerySchema = z.object({
   search: z.string().optional(),

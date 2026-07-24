@@ -9,6 +9,7 @@ const defaultSelect = {
   level: true,
   duration: true,
   isPublished: true,
+  maxStudents: true,
   createdAt: true,
   updatedAt: true,
   category: { select: { id: true, name: true } },
@@ -57,7 +58,7 @@ export function findMyCourses(creatorId: string) {
 
 export function createCourse(data: CreateCourseInput, creatorId: string) {
   return prisma.course.create({
-    data: { ...data, createdBy: creatorId, isPublished: true },
+    data: { ...data, createdBy: creatorId },
     select: defaultSelect,
   });
 }
@@ -68,4 +69,16 @@ export function updateCourse(id: string, data: UpdateCourseInput) {
 
 export function deleteCourse(id: string) {
   return prisma.course.delete({ where: { id } });
+}
+
+export function setPublishStatus(id: string, isPublished: boolean) {
+  return prisma.course.update({
+    where: { id },
+    data: { isPublished },
+    select: defaultSelect,
+  });
+}
+
+export function countEnrollments(courseId: string) {
+  return prisma.enrollment.count({ where: { courseId } });
 }

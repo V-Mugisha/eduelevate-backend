@@ -56,6 +56,7 @@ export async function listCourseStudents(req: Request, res: Response, next: Next
     const students = await enrollmentsService.listCourseStudents(
       userId,
       req.params.courseId as string,
+      req.user?.role,
     );
     res.json({ data: students });
   } catch (error) {
@@ -74,6 +75,7 @@ export async function getStudentDetail(req: Request, res: Response, next: NextFu
       userId,
       req.params.courseId as string,
       req.params.userId as string,
+      req.user?.role,
     );
     res.json({ data: detail });
   } catch (error) {

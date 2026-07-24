@@ -9,6 +9,7 @@ router.get("/my-courses", authenticate, coursesController.listMyCourses);
 router.get("/:id", coursesController.getCourse);
 router.post("/", authenticate, coursesController.createCourse);
 router.put("/:id", authenticate, coursesController.updateCourse);
+router.patch("/:id/publish", authenticate, coursesController.publishCourse);
 router.delete("/:id", authenticate, coursesController.deleteCourse);
 
 export default router;

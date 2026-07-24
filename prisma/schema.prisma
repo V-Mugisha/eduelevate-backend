@@ -133,6 +133,7 @@ model Course {
   level        String    @default("beginner")
   duration     String?
   isPublished  Boolean   @default(false) @map("is_published")
+  maxStudents  Int?      @map("max_students")
   createdBy    String    @map("created_by") @db.Uuid
   creator      User      @relation(fields: [createdBy], references: [id])
   createdAt    DateTime  @default(now()) @map("created_at")
