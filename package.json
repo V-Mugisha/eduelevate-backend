@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/src/server.js",
+    "build": "tsc --noEmit",
+    "start": "tsx src/server.ts",
     "prebuild": "npx prisma generate",
     "type-check": "tsc --noEmit",
     "lint": "eslint .",
