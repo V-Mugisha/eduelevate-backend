@@ -15,8 +15,7 @@
     "format:fix": "prettier --write \"src/**/*.ts\"",
     "check": "npm run lint && npm run format",
     "check:fix": "npm run lint:fix && npm run format:fix",
-    "audit:cleanup": "tsx src/scripts/cleanupAuditLogs.ts",
-    "prepare": "husky"
+    "audit:cleanup": "tsx src/scripts/cleanupAuditLogs.ts"
   },
   "prisma": {
     "seed": "tsx prisma/seed.ts"
