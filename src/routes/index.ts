@@ -9,6 +9,7 @@ import enrollmentsRouter from "@/modules/enrollments/enrollments.routes";
 
 import sectionsRouter from "@/modules/sections/sections.routes";
 import assessmentsRouter from "@/modules/assessments/assessments.routes";
+import certificatesRouter from "@/modules/certificates/certificates.routes";
 
 const router = Router();
 
@@ -20,6 +21,7 @@ router.use("/courses/:courseId/modules", modulesRouter);
 router.use("/modules/:moduleId/lessons", lessonsRouter);
 router.use("/lessons/:lessonId/sections", sectionsRouter);
 router.use("/", assessmentsRouter);
+router.use("/", certificatesRouter);
 router.use("/", enrollmentsRouter);
 
 export default router;

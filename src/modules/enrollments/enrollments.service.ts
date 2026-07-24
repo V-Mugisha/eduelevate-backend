@@ -1,5 +1,6 @@
 import * as enrollmentsRepository from "./enrollments.repository.js";
 import * as coursesRepository from "@/modules/courses/courses.repository.js";
+import * as certificatesRepository from "@/modules/certificates/certificates.repository.js";
 import { prisma } from "@/lib/prisma";
 
 export async function enroll(userId: string, courseId: string) {
@@ -102,9 +103,10 @@ export async function getStudentDetail(
   const enrollment = await enrollmentsRepository.findEnrollmentWithStudent(studentUserId, courseId);
   if (!enrollment) throw new ServiceError("Student not enrolled in this course", 404);
 
-  const [liveLessons, modules] = await Promise.all([
+  const [liveLessons, modules, certificates] = await Promise.all([
     enrollmentsRepository.findCourseLessons(courseId),
     enrollmentsRepository.findModulesWithLessonTitles(courseId),
+    certificatesRepository.findCertificateByUserAndCourse(studentUserId, courseId),
   ]);
 
   const liveLessonIds = new Set(liveLessons.map((l) => l.id));
@@ -135,6 +137,9 @@ export async function getStudentDetail(
       id: course.id,
       title: course.title,
     },
+    certificate: certificates
+      ? { id: certificates.id, issuedAt: certificates.issuedAt }
+      : null,
     modules,
   };
 }
