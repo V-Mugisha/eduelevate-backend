@@ -149,6 +149,19 @@ export async function completeLesson(userId: string, lessonId: string) {
   const enrollment = await enrollmentsRepository.findEnrollment(userId, mod.courseId);
   if (!enrollment) throw new ServiceError("Not enrolled in this course", 403);
 
+  const assessment = await prisma.assessment.findUnique({
+    where: { lessonId },
+    select: { id: true, isGraded: true, _count: { select: { questions: true } } },
+  });
+
+  if (assessment && assessment.isGraded) {
+    const submissionCount = await prisma.submission.count({
+      where: { userId, question: { assessmentId: assessment.id } },
+    });
+    if (submissionCount < assessment._count.questions)
+      throw new ServiceError("Complete the assessment before marking this lesson as complete", 400);
+  }
+
   await enrollmentsRepository.completeLesson(enrollment.id, lessonId);
   return { message: "Lesson marked as complete" };
 }

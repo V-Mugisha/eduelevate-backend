@@ -29,6 +29,7 @@ model User {
   educatorProfile EducatorProfile?
   courses         Course[]
   enrollments     Enrollment[]
+  submissions     Submission[]
 
   @@map("users")
 }
@@ -174,6 +175,7 @@ model Lesson {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   sections Section[]
+  assessment   Assessment?
 
   @@index([moduleId])
   @@map("topics")
@@ -216,4 +218,52 @@ model Section {
 
   @@index([lessonId])
   @@map("sections")
+}
+
+model Assessment {
+  id           String   @id @default(uuid()) @db.Uuid
+  lessonId     String   @unique @map("lesson_id") @db.Uuid
+  lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  title        String?
+  instructions String?
+  isGraded     Boolean  @default(true) @map("is_graded")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+
+  questions Question[]
+
+  @@map("assessments")
+}
+
+model Question {
+  id             String     @id @default(uuid()) @db.Uuid
+  assessmentId   String     @map("assessment_id") @db.Uuid
+  assessment     Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  title          String
+  answerOptions  String[]   @map("answer_options")
+  correctAnswers String[]   @map("correct_answers")
+  grade          Int        @default(1)
+  order          Int        @default(0)
+  createdAt      DateTime   @default(now()) @map("created_at")
+  updatedAt      DateTime   @updatedAt @map("updated_at")
+
+  submissions Submission[]
+
+  @@index([assessmentId])
+  @@map("questions")
+}
+
+model Submission {
+  id              String   @id @default(uuid()) @db.Uuid
+  userId          String   @map("user_id") @db.Uuid
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  questionId      String   @map("question_id") @db.Uuid
+  question        Question @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  providedAnswers String[] @map("provided_answers")
+  correctAnswers  String[] @map("correct_answers")
+  isCorrect       Boolean  @map("is_correct")
+  createdAt       DateTime @default(now()) @map("created_at")
+
+  @@unique([userId, questionId])
+  @@map("submissions")
 }
