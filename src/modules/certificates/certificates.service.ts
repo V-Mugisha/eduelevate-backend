@@ -12,8 +12,7 @@ export async function generateCertificate(userId: string, courseId: string) {
   );
 
   const totalLessons = liveLessons.length;
-  if (totalLessons === 0)
-    throw new ServiceError("This course has no lessons yet", 400);
+  if (totalLessons === 0) throw new ServiceError("This course has no lessons yet", 400);
   if (validCompletions.length < totalLessons)
     throw new ServiceError("You must complete all lessons before generating a certificate", 400);
 

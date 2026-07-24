@@ -137,9 +137,7 @@ export async function getStudentDetail(
       id: course.id,
       title: course.title,
     },
-    certificate: certificates
-      ? { id: certificates.id, issuedAt: certificates.issuedAt }
-      : null,
+    certificate: certificates ? { id: certificates.id, issuedAt: certificates.issuedAt } : null,
     modules,
   };
 }
