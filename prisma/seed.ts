@@ -246,6 +246,47 @@ async function main() {
     }
   }
 
+  console.log("Seeding modules and lessons...");
+  const htmlCourse = await prisma.course.findFirst({ where: { title: "Introduction to HTML & CSS" } });
+  if (htmlCourse) {
+    const existingModules = await prisma.module.count({ where: { courseId: htmlCourse.id } });
+    if (existingModules === 0) {
+      const mod1 = await prisma.module.create({
+        data: {
+          courseId: htmlCourse.id,
+          title: "Getting Started with HTML",
+          subtitle: "Learn the foundation of every web page",
+          description: "In this module, we will explore what HTML is, how it works, and write our first lines of code.",
+          prerequisites: [],
+        },
+      });
+      await prisma.lesson.createMany({
+        data: [
+          { moduleId: mod1.id, title: "What is HTML?", subtitle: "Understanding HyperText Markup Language", content: "<p>HTML stands for <b>HyperText Markup Language</b>. It is the standard language used to create web pages.</p><p>Every website you visit is built with HTML at its core. It provides the <b>structure</b> and <b>meaning</b> to web content.</p>" },
+          { moduleId: mod1.id, title: "Setting Up Your First HTML File", subtitle: "Your development environment", content: "<h2>Creating Your First HTML File</h2><p>Open any text editor and create a new file called <b>index.html</b>. Add the following code:</p><p>This is the basic structure every HTML document needs. The <b>DOCTYPE</b> tells the browser what version of HTML to expect.</p>" },
+          { moduleId: mod1.id, title: "HTML Elements and Tags", subtitle: "The building blocks of web pages", content: "<p>HTML uses <b>tags</b> to define elements. A tag is enclosed in angle brackets like <b>&lt;tagname&gt;</b>.</p><p>Most elements have an opening tag, content, and a closing tag. For example: <b>&lt;p&gt;Hello World&lt;/p&gt;</b></p>" },
+        ],
+      });
+
+      const mod2 = await prisma.module.create({
+        data: {
+          courseId: htmlCourse.id,
+          title: "Styling with CSS",
+          subtitle: "Make your pages beautiful",
+          description: "Now that you can structure content with HTML, it is time to learn how to style it with CSS.",
+          prerequisites: ["Basic HTML knowledge"],
+        },
+      });
+      await prisma.lesson.createMany({
+        data: [
+          { moduleId: mod2.id, title: "Introduction to CSS", subtitle: "Cascading Style Sheets explained", content: "<p>CSS stands for <b>Cascading Style Sheets</b>. It describes how HTML elements should be displayed.</p><p>With CSS, you can control the <i>color</i>, <i>font</i>, <i>spacing</i>, and <i>layout</i> of your web pages.</p>" },
+          { moduleId: mod2.id, title: "CSS Selectors and Properties", subtitle: "Targeting HTML elements", content: "<h2>CSS Selectors</h2><p>Selectors are patterns used to select the elements you want to style. The most common selectors are <b>element</b>, <b>class</b>, and <b>ID</b> selectors.</p><p>For example, <b>p { color: blue; }</b> makes all paragraphs blue.</p>" },
+          { moduleId: mod2.id, title: "Colors and Typography", subtitle: "Working with text and colors", content: "<p>CSS gives you control over colors using names, hex codes, RGB, or HSL values.</p><p>Typography includes properties like <b>font-family</b>, <b>font-size</b>, <b>font-weight</b>, and <b>line-height</b>. Good typography makes your content readable and professional.</p>" },
+        ],
+      });
+    }
+  }
+
   console.log("Seeding complete.");
 }
 

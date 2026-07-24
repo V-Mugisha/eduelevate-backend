@@ -138,6 +138,39 @@ model Course {
   updatedAt    DateTime  @updatedAt @map("updated_at")
 
   @@index([categoryId])
+  modules Module[]
+
   @@index([createdBy])
   @@map("courses")
+}
+
+model Module {
+  id            String   @id @default(uuid()) @db.Uuid
+  courseId      String   @map("course_id") @db.Uuid
+  course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  title         String
+  subtitle      String?
+  description   String?
+  prerequisites String[] @default([])
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  lessons Lesson[]
+
+  @@index([courseId])
+  @@map("chapters")
+}
+
+model Lesson {
+  id        String   @id @default(uuid()) @db.Uuid
+  moduleId  String   @map("chapter_id") @db.Uuid
+  module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  title     String
+  subtitle  String?
+  content   String
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([moduleId])
+  @@map("topics")
 }
