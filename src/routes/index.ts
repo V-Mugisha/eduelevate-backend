@@ -10,6 +10,7 @@ import enrollmentsRouter from "@/modules/enrollments/enrollments.routes";
 import sectionsRouter from "@/modules/sections/sections.routes";
 import assessmentsRouter from "@/modules/assessments/assessments.routes";
 import certificatesRouter from "@/modules/certificates/certificates.routes";
+import mentorshipRouter from "@/modules/mentorship/mentorship.routes";
 
 const router = Router();
 
@@ -22,6 +23,7 @@ router.use("/modules/:moduleId/lessons", lessonsRouter);
 router.use("/lessons/:lessonId/sections", sectionsRouter);
 router.use("/", assessmentsRouter);
 router.use("/", certificatesRouter);
+router.use("/", mentorshipRouter);
 router.use("/", enrollmentsRouter);
 
 export default router;

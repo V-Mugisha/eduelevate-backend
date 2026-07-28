@@ -31,6 +31,12 @@ model User {
   enrollments     Enrollment[]
   submissions     Submission[]
   certificates    Certificate[]
+  mentorshipProfile MentorshipProfile?
+  mentorshipApplicationsSent     MentorshipApplication[]  @relation("SentApplications")
+  mentorshipApplicationsReceived MentorshipApplication[]  @relation("ReceivedApplications")
+  mentorshipsAsStudent Mentorship[] @relation("StudentMentorships")
+  mentorshipsAsEducator Mentorship[] @relation("EducatorMentorships")
+  sentMessages       MentorshipMessage[]
 
   @@map("users")
 }
@@ -280,4 +286,75 @@ model Certificate {
 
   @@unique([userId, courseId])
   @@map("certificates")
+}
+
+model MentorshipProfile {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @unique @map("user_id") @db.Uuid
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  topics    String[]
+  bio       String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("mentorship_profiles")
+}
+
+model MentorshipApplication {
+  id              String   @id @default(uuid()) @db.Uuid
+  studentId       String   @map("student_id") @db.Uuid
+  educatorId      String   @map("educator_id") @db.Uuid
+  student         User     @relation("SentApplications", fields: [studentId], references: [id], onDelete: Cascade)
+  educator        User     @relation("ReceivedApplications", fields: [educatorId], references: [id], onDelete: Cascade)
+  message         String
+  topic           String?
+  status          String   @default("pending")
+  rejectionReason String?  @map("rejection_reason")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+
+  @@map("mentorship_applications")
+}
+
+model Mentorship {
+  id          String    @id @default(uuid()) @db.Uuid
+  studentId   String    @map("student_id") @db.Uuid
+  educatorId  String    @map("educator_id") @db.Uuid
+  student     User      @relation("StudentMentorships", fields: [studentId], references: [id], onDelete: Cascade)
+  educator    User      @relation("EducatorMentorships", fields: [educatorId], references: [id], onDelete: Cascade)
+  startedAt   DateTime  @default(now()) @map("started_at")
+  endedAt     DateTime? @map("ended_at")
+  endedBy     String?   @map("ended_by")
+  endReason   String?   @map("end_reason")
+  createdAt   DateTime  @default(now()) @map("created_at")
+
+  @@unique([studentId, educatorId])
+  @@map("mentorships")
+  messages MentorshipMessage[]
+  rating   MentorshipRating?
+}
+
+model MentorshipMessage {
+  id           String     @id @default(uuid()) @db.Uuid
+  mentorshipId String     @map("mentorship_id") @db.Uuid
+  mentorship   Mentorship @relation(fields: [mentorshipId], references: [id], onDelete: Cascade)
+  senderId     String     @map("sender_id") @db.Uuid
+  sender       User       @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  content      String
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@index([mentorshipId, createdAt])
+  @@map("mentorship_messages")
+}
+
+model MentorshipRating {
+  id           String     @id @default(uuid()) @db.Uuid
+  mentorshipId String     @unique @map("mentorship_id") @db.Uuid
+  mentorship   Mentorship @relation(fields: [mentorshipId], references: [id], onDelete: Cascade)
+  studentId    String     @map("student_id") @db.Uuid
+  educatorId   String     @map("educator_id") @db.Uuid
+  rating       Int
+  createdAt    DateTime   @default(now()) @map("created_at")
+
+  @@map("mentorship_ratings")
 }
