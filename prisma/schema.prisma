@@ -55,7 +55,7 @@ model EducatorProfile {
   organizationName String?  @map("organization_name")
   expertiseAreas   String[] @map("expertise_areas")
   yearsOfExperience Int?    @map("years_of_experience")
-  bio              String
+  bio              String?
   createdAt        DateTime @default(now()) @map("created_at")
   updatedAt        DateTime @updatedAt @map("updated_at")
 

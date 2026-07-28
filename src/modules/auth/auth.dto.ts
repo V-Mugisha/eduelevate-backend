@@ -46,7 +46,7 @@ export const educatorRegisterSchema = z
       .array(z.string().min(1).max(200))
       .min(1, "At least one area of expertise is required"),
     yearsOfExperience: z.number().int().min(0).optional(),
-    bio: z.string().min(1, "Bio is required").max(2000, "Bio must be at most 2000 characters"),
+    bio: z.string().max(2000, "Bio must be at most 2000 characters").optional(),
   })
   .refine(
     (data: { isIndependent: boolean; organizationName?: string | null }) =>

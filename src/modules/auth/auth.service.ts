@@ -112,7 +112,7 @@ export async function registerEducator(data: EducatorRegisterInput): Promise<Aut
       organizationName: data.organizationName ?? null,
       expertiseAreas: data.expertiseAreas,
       yearsOfExperience: data.yearsOfExperience ?? null,
-      bio: data.bio,
+      bio: data.bio ?? "",
     },
   );
 
