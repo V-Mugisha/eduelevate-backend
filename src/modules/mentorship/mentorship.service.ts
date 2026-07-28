@@ -121,11 +121,7 @@ export async function getMentorship(id: string, userId: string) {
   return mentorship;
 }
 
-export async function endMentorship(
-  id: string,
-  userId: string,
-  data: EndMentorshipInput,
-) {
+export async function endMentorship(id: string, userId: string, data: EndMentorshipInput) {
   const mentorship = await mentorshipRepository.findMentorshipById(id);
   if (!mentorship) throw new ServiceError("Mentorship not found", 404);
   if (mentorship.studentId !== userId && mentorship.educatorId !== userId)
@@ -153,11 +149,7 @@ export async function listMessages(mentorshipId: string, userId: string) {
   return mentorshipRepository.findMessagesByMentorship(mentorshipId);
 }
 
-export async function rateEducator(
-  mentorshipId: string,
-  studentId: string,
-  rating: number,
-) {
+export async function rateEducator(mentorshipId: string, studentId: string, rating: number) {
   const mentorship = await mentorshipRepository.findMentorshipById(mentorshipId);
   if (!mentorship) throw new ServiceError("Mentorship not found", 404);
   if (mentorship.studentId !== studentId)
@@ -167,12 +159,7 @@ export async function rateEducator(
   const existing = await mentorshipRepository.findRatingByMentorship(mentorshipId);
   if (existing) throw new ServiceError("Already rated", 409);
 
-  return mentorshipRepository.createRating(
-    mentorshipId,
-    studentId,
-    mentorship.educatorId,
-    rating,
-  );
+  return mentorshipRepository.createRating(mentorshipId, studentId, mentorship.educatorId, rating);
 }
 
 export async function getEducatorRating(educatorId: string) {

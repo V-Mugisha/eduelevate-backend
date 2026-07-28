@@ -32,6 +32,8 @@ export function countSections(lessonId: string) {
 export function findSectionById(sectionId: string) {
   return prisma.section.findUnique({
     where: { id: sectionId },
-    include: { lesson: { select: { module: { select: { course: { select: { createdBy: true } } } } } } },
+    include: {
+      lesson: { select: { module: { select: { course: { select: { createdBy: true } } } } } },
+    },
   });
 }

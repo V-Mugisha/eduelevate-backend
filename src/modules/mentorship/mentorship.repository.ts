@@ -1,5 +1,9 @@
 import { prisma } from "@/lib/prisma";
-import type { CreateProfileInput, UpdateProfileInput, CreateApplicationInput } from "./mentorship.dto.js";
+import type {
+  CreateProfileInput,
+  UpdateProfileInput,
+  CreateApplicationInput,
+} from "./mentorship.dto.js";
 
 const profileSelect = { id: true, userId: true, topics: true, bio: true, createdAt: true };
 
@@ -53,12 +57,20 @@ export function searchEducators(query?: string) {
 
 export function findEducatorById(userId: string) {
   return prisma.user.findFirst({
-    where: { id: userId, role: { name: { in: ["educator", "admin"] } }, mentorshipProfile: { isNot: null } },
+    where: {
+      id: userId,
+      role: { name: { in: ["educator", "admin"] } },
+      mentorshipProfile: { isNot: null },
+    },
     select: educatorSelect,
   });
 }
 
-export function createApplication(studentId: string, educatorId: string, data: CreateApplicationInput) {
+export function createApplication(
+  studentId: string,
+  educatorId: string,
+  data: CreateApplicationInput,
+) {
   return prisma.mentorshipApplication.create({
     data: {
       studentId,
@@ -242,7 +254,12 @@ export function findMessagesByMentorship(mentorshipId: string) {
   });
 }
 
-export function createRating(mentorshipId: string, studentId: string, educatorId: string, rating: number) {
+export function createRating(
+  mentorshipId: string,
+  studentId: string,
+  educatorId: string,
+  rating: number,
+) {
   return prisma.mentorshipRating.create({
     data: { mentorshipId, studentId, educatorId, rating },
     select: { id: true, mentorshipId: true, rating: true, createdAt: true },

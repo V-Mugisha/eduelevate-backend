@@ -1,9 +1,7 @@
 import { z } from "zod";
 
 export const createProfileSchema = z.object({
-  topics: z
-    .array(z.string().min(1).max(100))
-    .min(1, "At least one topic is required"),
+  topics: z.array(z.string().min(1).max(100)).min(1, "At least one topic is required"),
   bio: z.string().max(1000).optional(),
 });
 
