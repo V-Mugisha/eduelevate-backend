@@ -10,16 +10,18 @@ export async function create(data: CreateSectionInput, lessonId: string, userId:
 }
 
 export async function update(id: string, data: UpdateSectionInput, userId: string) {
-  const lesson = await sectionsRepository.findModuleByLessonId(id);
-  if (!lesson) throw new ServiceError("Section not found", 404);
-  if (lesson.module.course.createdBy !== userId) throw new ServiceError("Not authorized", 403);
+  const section = await sectionsRepository.findSectionById(id);
+  if (!section) throw new ServiceError("Section not found", 404);
+  if (section.lesson.module.course.createdBy !== userId)
+    throw new ServiceError("Not authorized", 403);
   return sectionsRepository.updateSection(id, data);
 }
 
 export async function remove(id: string, userId: string) {
-  const lesson = await sectionsRepository.findModuleByLessonId(id);
-  if (!lesson) throw new ServiceError("Section not found", 404);
-  if (lesson.module.course.createdBy !== userId) throw new ServiceError("Not authorized", 403);
+  const section = await sectionsRepository.findSectionById(id);
+  if (!section) throw new ServiceError("Section not found", 404);
+  if (section.lesson.module.course.createdBy !== userId)
+    throw new ServiceError("Not authorized", 403);
   return sectionsRepository.deleteSection(id);
 }
 

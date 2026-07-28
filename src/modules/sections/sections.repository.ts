@@ -28,3 +28,10 @@ export function findModuleByLessonId(lessonId: string) {
 export function countSections(lessonId: string) {
   return prisma.section.count({ where: { lessonId } });
 }
+
+export function findSectionById(sectionId: string) {
+  return prisma.section.findUnique({
+    where: { id: sectionId },
+    include: { lesson: { select: { module: { select: { course: { select: { createdBy: true } } } } } } },
+  });
+}
