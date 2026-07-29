@@ -219,6 +219,14 @@ export async function changePassword(userId: string, currentPassword: string, ne
   const passwordHash = await bcrypt.hash(newPassword, SALT_ROUNDS);
 
   await authRepository.updateUserPassword(userId, passwordHash);
+
+  createAuditLog({
+    action: "auth:change_password",
+    entityType: "user",
+    entityId: userId,
+    performedBy: userId,
+    status: "success",
+  }).catch(() => {});
 }
 
 export class ServiceError extends Error {

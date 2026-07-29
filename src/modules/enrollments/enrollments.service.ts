@@ -2,6 +2,7 @@ import * as enrollmentsRepository from "./enrollments.repository.js";
 import * as coursesRepository from "@/modules/courses/courses.repository.js";
 import * as certificatesRepository from "@/modules/certificates/certificates.repository.js";
 import { prisma } from "@/lib/prisma";
+import { createAuditLog } from "@/lib/auditLog";
 
 export async function enroll(userId: string, courseId: string) {
   const course = await coursesRepository.findCourseById(courseId);
@@ -19,7 +20,18 @@ export async function enroll(userId: string, courseId: string) {
   const existing = await enrollmentsRepository.findEnrollment(userId, courseId);
   if (existing) throw new ServiceError("Already enrolled in this course", 409);
 
-  return enrollmentsRepository.createEnrollment(userId, courseId);
+  const enrollment = await enrollmentsRepository.createEnrollment(userId, courseId);
+
+  createAuditLog({
+    action: "enrollment:enroll",
+    entityType: "enrollment",
+    entityId: enrollment.id,
+    performedBy: userId,
+    details: { courseId },
+    status: "success",
+  }).catch(() => {});
+
+  return enrollment;
 }
 
 export async function getEnrollment(userId: string, courseId: string) {
@@ -166,6 +178,16 @@ export async function completeLesson(userId: string, lessonId: string) {
   }
 
   await enrollmentsRepository.completeLesson(enrollment.id, lessonId);
+
+  createAuditLog({
+    action: "enrollment:complete_lesson",
+    entityType: "enrollment",
+    entityId: enrollment.id,
+    performedBy: userId,
+    details: { lessonId, courseId: mod.courseId },
+    status: "success",
+  }).catch(() => {});
+
   return { message: "Lesson marked as complete" };
 }
 

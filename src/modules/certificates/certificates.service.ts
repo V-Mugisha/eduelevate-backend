@@ -1,5 +1,6 @@
 import * as certificatesRepository from "./certificates.repository.js";
 import * as enrollmentsRepository from "@/modules/enrollments/enrollments.repository.js";
+import { createAuditLog } from "@/lib/auditLog";
 
 export async function generateCertificate(userId: string, courseId: string) {
   const enrollment = await enrollmentsRepository.findEnrollment(userId, courseId);
@@ -19,7 +20,18 @@ export async function generateCertificate(userId: string, courseId: string) {
   const existing = await certificatesRepository.findCertificateByUserAndCourse(userId, courseId);
   if (existing) throw new ServiceError("Certificate already generated for this course", 409);
 
-  return certificatesRepository.createCertificate(userId, courseId);
+  const certificate = await certificatesRepository.createCertificate(userId, courseId);
+
+  createAuditLog({
+    action: "certificate:generate",
+    entityType: "certificate",
+    entityId: certificate.id,
+    performedBy: userId,
+    details: { courseId },
+    status: "success",
+  }).catch(() => {});
+
+  return certificate;
 }
 
 export async function getCertificate(id: string, userId: string, userRole?: string) {

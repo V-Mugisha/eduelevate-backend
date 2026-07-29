@@ -6,6 +6,7 @@ import type {
   SubmitAssessmentInput,
 } from "./assessments.dto.js";
 import * as assessmentsRepository from "./assessments.repository.js";
+import { createAuditLog } from "@/lib/auditLog";
 
 async function authorizeLessonOwner(lessonId: string, userId: string, userRole?: string) {
   if (userRole === "admin") return;
@@ -28,7 +29,18 @@ export async function createAssessment(
   await authorizeLessonOwner(lessonId, userId, userRole);
   const existing = await assessmentsRepository.findAssessmentByLessonId(lessonId);
   if (existing) throw new ServiceError("An assessment already exists for this lesson", 409);
-  return assessmentsRepository.createAssessment(lessonId, data);
+  const assessment = await assessmentsRepository.createAssessment(lessonId, data);
+
+  createAuditLog({
+    action: "assessment:create",
+    entityType: "assessment",
+    entityId: assessment.id,
+    performedBy: userId,
+    details: { lessonId, isGraded: data.isGraded },
+    status: "success",
+  }).catch(() => {});
+
+  return assessment;
 }
 
 export async function updateAssessment(
@@ -40,14 +52,36 @@ export async function updateAssessment(
   const assessment = await assessmentsRepository.findAssessmentById(id);
   if (!assessment) throw new ServiceError("Assessment not found", 404);
   await authorizeLessonOwner(assessment.lessonId, userId, userRole);
-  return assessmentsRepository.updateAssessment(id, data);
+  const updated = await assessmentsRepository.updateAssessment(id, data);
+
+  createAuditLog({
+    action: "assessment:update",
+    entityType: "assessment",
+    entityId: id,
+    performedBy: userId,
+    details: { ...data, lessonId: assessment.lessonId },
+    status: "success",
+  }).catch(() => {});
+
+  return updated;
 }
 
 export async function removeAssessment(id: string, userId: string, userRole?: string) {
   const assessment = await assessmentsRepository.findAssessmentById(id);
   if (!assessment) throw new ServiceError("Assessment not found", 404);
   await authorizeLessonOwner(assessment.lessonId, userId, userRole);
-  return assessmentsRepository.deleteAssessment(id);
+  const deleted = await assessmentsRepository.deleteAssessment(id);
+
+  createAuditLog({
+    action: "assessment:delete",
+    entityType: "assessment",
+    entityId: id,
+    performedBy: userId,
+    details: { lessonId: assessment.lessonId },
+    status: "success",
+  }).catch(() => {});
+
+  return deleted;
 }
 
 export async function createQuestion(
@@ -65,7 +99,18 @@ export async function createQuestion(
     throw new ServiceError(`Correct answers must be valid options: ${invalid.join(", ")}`, 400);
 
   const count = await assessmentsRepository.countQuestionsByAssessment(assessmentId);
-  return assessmentsRepository.createQuestion(assessmentId, data, count);
+  const question = await assessmentsRepository.createQuestion(assessmentId, data, count);
+
+  createAuditLog({
+    action: "assessment:create_question",
+    entityType: "question",
+    entityId: question.id,
+    performedBy: userId,
+    details: { assessmentId, grade: data.grade },
+    status: "success",
+  }).catch(() => {});
+
+  return question;
 }
 
 export async function updateQuestion(
@@ -87,7 +132,18 @@ export async function updateQuestion(
   if (invalid.length > 0)
     throw new ServiceError(`Correct answers must be valid options: ${invalid.join(", ")}`, 400);
 
-  return assessmentsRepository.updateQuestion(id, data);
+  const updated = await assessmentsRepository.updateQuestion(id, data);
+
+  createAuditLog({
+    action: "assessment:update_question",
+    entityType: "question",
+    entityId: id,
+    performedBy: userId,
+    details: { assessmentId: assessment.id },
+    status: "success",
+  }).catch(() => {});
+
+  return updated;
 }
 
 export async function removeQuestion(id: string, userId: string, userRole?: string) {
@@ -98,7 +154,18 @@ export async function removeQuestion(id: string, userId: string, userRole?: stri
   if (!assessment) throw new ServiceError("Assessment not found", 404);
   await authorizeLessonOwner(assessment.lessonId, userId, userRole);
 
-  return assessmentsRepository.deleteQuestion(id);
+  const deleted = await assessmentsRepository.deleteQuestion(id);
+
+  createAuditLog({
+    action: "assessment:delete_question",
+    entityType: "question",
+    entityId: id,
+    performedBy: userId,
+    details: { assessmentId: assessment.id },
+    status: "success",
+  }).catch(() => {});
+
+  return deleted;
 }
 
 export async function getQuestionsForStudent(assessmentId: string, userId: string) {
@@ -204,6 +271,15 @@ export async function submitAssessment(
     totalPossible += question.grade;
     if (isCorrect) totalScore += question.grade;
   }
+
+  createAuditLog({
+    action: "assessment:submit",
+    entityType: "assessment",
+    entityId: assessmentId,
+    performedBy: userId,
+    details: { totalScore, totalPossible, questionsSubmitted: data.answers.length },
+    status: "success",
+  }).catch(() => {});
 
   return { results, totalScore, totalPossible };
 }
