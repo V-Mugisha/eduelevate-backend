@@ -23,7 +23,9 @@ const studentProfileSchema = z.object({
 const educatorProfileSchema = z.object({
   isIndependent: z.boolean(),
   organizationName: z.string().max(200).nullable().optional(),
-  expertiseAreas: z.array(z.string().min(1).max(200)).min(1, "At least one expertise area is required"),
+  expertiseAreas: z
+    .array(z.string().min(1).max(200))
+    .min(1, "At least one expertise area is required"),
   yearsOfExperience: z.number().int().min(0).nullable().optional(),
   bio: z.string().max(2000).optional(),
 });

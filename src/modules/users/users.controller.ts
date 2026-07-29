@@ -1,10 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import { ZodError } from "zod";
-import {
-  createUserSchema,
-  updateUserSchema,
-  userQuerySchema,
-} from "./users.dto.js";
+import { createUserSchema, updateUserSchema, userQuerySchema } from "./users.dto.js";
 import * as usersService from "./users.service.js";
 
 function handleControllerError(error: unknown, res: Response, next: NextFunction) {
@@ -104,7 +100,10 @@ export async function toggleStatus(req: Request, res: Response, next: NextFuncti
       return;
     }
     const user = await usersService.toggleStatus(req.params.id as string, adminId, userRole);
-    res.json({ message: `User ${user.isActive ? "enabled" : "disabled"} successfully`, data: user });
+    res.json({
+      message: `User ${user.isActive ? "enabled" : "disabled"} successfully`,
+      data: user,
+    });
   } catch (error) {
     next(error);
   }

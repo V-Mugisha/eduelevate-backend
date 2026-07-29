@@ -161,7 +161,10 @@ export async function rejectApplication(
   if (app.educatorId !== educatorId) throw new ServiceError("Not authorized", 403);
   if (app.status !== "pending") throw new ServiceError("Application is no longer pending", 400);
 
-  const rejected = await mentorshipRepository.rejectApplication(applicationId, data.rejectionReason);
+  const rejected = await mentorshipRepository.rejectApplication(
+    applicationId,
+    data.rejectionReason,
+  );
 
   createAuditLog({
     action: "mentorship:reject_application",
@@ -247,7 +250,12 @@ export async function rateEducator(mentorshipId: string, studentId: string, rati
   const existing = await mentorshipRepository.findRatingByMentorship(mentorshipId);
   if (existing) throw new ServiceError("Already rated", 409);
 
-  const ratingResult = await mentorshipRepository.createRating(mentorshipId, studentId, mentorship.educatorId, rating);
+  const ratingResult = await mentorshipRepository.createRating(
+    mentorshipId,
+    studentId,
+    mentorship.educatorId,
+    rating,
+  );
 
   createAuditLog({
     action: "mentorship:rate_educator",

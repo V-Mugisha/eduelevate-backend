@@ -65,7 +65,12 @@ export async function createUser(data: CreateUserInput, adminId: string, userRol
   return user;
 }
 
-export async function updateUser(id: string, data: UpdateUserInput, adminId: string, adminRole?: string) {
+export async function updateUser(
+  id: string,
+  data: UpdateUserInput,
+  adminId: string,
+  adminRole?: string,
+) {
   requireAdmin(adminRole);
 
   const user = await usersRepository.findUserById(id);
@@ -93,7 +98,12 @@ export async function updateUser(id: string, data: UpdateUserInput, adminId: str
     });
   }
 
-  if (updated.educatorProfile && (data.isIndependent !== undefined || data.expertiseAreas !== undefined || data.bio !== undefined)) {
+  if (
+    updated.educatorProfile &&
+    (data.isIndependent !== undefined ||
+      data.expertiseAreas !== undefined ||
+      data.bio !== undefined)
+  ) {
     await usersRepository.updateEducatorProfileData(id, {
       isIndependent: data.isIndependent,
       organizationName: data.organizationName,

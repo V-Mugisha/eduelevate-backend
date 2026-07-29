@@ -29,7 +29,14 @@ export function findUserById(userId: string) {
         select: { id: true, schoolName: true, grade: true },
       },
       educatorProfile: {
-        select: { id: true, isIndependent: true, organizationName: true, expertiseAreas: true, yearsOfExperience: true, bio: true },
+        select: {
+          id: true,
+          isIndependent: true,
+          organizationName: true,
+          expertiseAreas: true,
+          yearsOfExperience: true,
+          bio: true,
+        },
       },
     },
   });
@@ -77,8 +84,22 @@ export async function findUsers(query: UserQuery) {
 }
 
 export function createUserWithProfile(
-  userData: { email: string; passwordHash: string; firstName: string; lastName: string; roleId: string },
-  profileData?: { schoolName?: string; grade?: "S4" | "S5" | "S6"; isIndependent?: boolean; organizationName?: string | null; expertiseAreas?: string[]; yearsOfExperience?: number | null; bio?: string },
+  userData: {
+    email: string;
+    passwordHash: string;
+    firstName: string;
+    lastName: string;
+    roleId: string;
+  },
+  profileData?: {
+    schoolName?: string;
+    grade?: "S4" | "S5" | "S6";
+    isIndependent?: boolean;
+    organizationName?: string | null;
+    expertiseAreas?: string[];
+    yearsOfExperience?: number | null;
+    bio?: string;
+  },
 ) {
   return prisma.user.create({
     data: {
@@ -88,10 +109,24 @@ export function createUserWithProfile(
       lastName: userData.lastName,
       roleId: userData.roleId,
       ...(profileData?.schoolName !== undefined || profileData?.grade !== undefined
-        ? { studentProfile: { create: { schoolName: profileData.schoolName!, grade: profileData.grade! } } }
+        ? {
+            studentProfile: {
+              create: { schoolName: profileData.schoolName!, grade: profileData.grade! },
+            },
+          }
         : {}),
       ...(profileData?.isIndependent !== undefined
-        ? { educatorProfile: { create: { isIndependent: profileData.isIndependent!, organizationName: profileData.organizationName ?? null, expertiseAreas: profileData.expertiseAreas ?? [], yearsOfExperience: profileData.yearsOfExperience ?? null, bio: profileData.bio ?? "" } } }
+        ? {
+            educatorProfile: {
+              create: {
+                isIndependent: profileData.isIndependent!,
+                organizationName: profileData.organizationName ?? null,
+                expertiseAreas: profileData.expertiseAreas ?? [],
+                yearsOfExperience: profileData.yearsOfExperience ?? null,
+                bio: profileData.bio ?? "",
+              },
+            },
+          }
         : {}),
     },
     select: {
@@ -103,7 +138,16 @@ export function createUserWithProfile(
       createdAt: true,
       role: { select: { id: true, name: true } },
       studentProfile: { select: { id: true, schoolName: true, grade: true } },
-      educatorProfile: { select: { id: true, isIndependent: true, organizationName: true, expertiseAreas: true, yearsOfExperience: true, bio: true } },
+      educatorProfile: {
+        select: {
+          id: true,
+          isIndependent: true,
+          organizationName: true,
+          expertiseAreas: true,
+          yearsOfExperience: true,
+          bio: true,
+        },
+      },
     },
   });
 }
@@ -129,12 +173,24 @@ export function updateUser(userId: string, data: UpdateUserInput) {
       updatedAt: true,
       role: { select: { id: true, name: true } },
       studentProfile: { select: { id: true, schoolName: true, grade: true } },
-      educatorProfile: { select: { id: true, isIndependent: true, organizationName: true, expertiseAreas: true, yearsOfExperience: true, bio: true } },
+      educatorProfile: {
+        select: {
+          id: true,
+          isIndependent: true,
+          organizationName: true,
+          expertiseAreas: true,
+          yearsOfExperience: true,
+          bio: true,
+        },
+      },
     },
   });
 }
 
-export function updateStudentProfileData(userId: string, data: { schoolName?: string; grade?: "S4" | "S5" | "S6" }) {
+export function updateStudentProfileData(
+  userId: string,
+  data: { schoolName?: string; grade?: "S4" | "S5" | "S6" },
+) {
   return prisma.studentProfile.update({
     where: { userId },
     data,
