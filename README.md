@@ -13,6 +13,9 @@ Node.js + Express + TypeScript + Prisma backend for the EduElevate learning plat
 1. Clone the repository:
 
    ```bash
+   # HTTPS
+   git clone https://github.com/V-Mugisha/eduelevate-backend.git
+   # SSH
    git clone git@github.com:V-Mugisha/eduelevate-backend.git
    cd eduelevate-backend
    ```
