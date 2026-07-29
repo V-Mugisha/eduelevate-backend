@@ -13,6 +13,7 @@ import certificatesRouter from "@/modules/certificates/certificates.routes";
 import mentorshipRouter from "@/modules/mentorship/mentorship.routes";
 import usersRouter from "@/modules/users/users.routes";
 import auditLogsRouter from "@/modules/audit-logs/audit-logs.routes";
+import dashboardRouter from "@/modules/dashboard/dashboard.routes";
 
 const router = Router();
 
@@ -29,5 +30,6 @@ router.use("/", mentorshipRouter);
 router.use("/", enrollmentsRouter);
 router.use("/users", usersRouter);
 router.use("/audit-logs", auditLogsRouter);
+router.use("/dashboard", dashboardRouter);
 
 export default router;
