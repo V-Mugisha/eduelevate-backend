@@ -164,7 +164,7 @@ model Module {
   course        Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
   title         String
   subtitle      String?
-  description   String?
+  description   String?  @db.Text
   prerequisites String[] @default([])
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @updatedAt @map("updated_at")
@@ -181,11 +181,11 @@ model Lesson {
   module    Module   @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   title     String
   subtitle  String?
+  content   String?  @db.Text
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  sections Section[]
-  assessment   Assessment?
+  assessment Assessment?
 
   @@index([moduleId])
   @@map("topics")
@@ -216,26 +216,12 @@ model LessonCompletion {
   @@map("lesson_completions")
 }
 
-model Section {
-  id        String   @id @default(uuid()) @db.Uuid
-  lessonId  String   @map("lesson_id") @db.Uuid
-  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  title     String?
-  content   String
-  order     Int      @default(0)
-  createdAt DateTime @default(now()) @map("created_at")
-  updatedAt DateTime @updatedAt @map("updated_at")
-
-  @@index([lessonId])
-  @@map("sections")
-}
-
 model Assessment {
   id           String   @id @default(uuid()) @db.Uuid
   lessonId     String   @unique @map("lesson_id") @db.Uuid
   lesson       Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
-  title        String?
-  instructions String?
+  title        String?  @db.Text
+  instructions String?  @db.Text
   isGraded     Boolean  @default(true) @map("is_graded")
   createdAt    DateTime @default(now()) @map("created_at")
   updatedAt    DateTime @updatedAt @map("updated_at")
@@ -249,7 +235,7 @@ model Question {
   id             String     @id @default(uuid()) @db.Uuid
   assessmentId   String     @map("assessment_id") @db.Uuid
   assessment     Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
-  title          String
+  title          String   @db.Text
   answerOptions  String[]   @map("answer_options")
   correctAnswers String[]   @map("correct_answers")
   grade          Int        @default(1)
