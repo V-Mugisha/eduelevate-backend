@@ -11,6 +11,7 @@ import sectionsRouter from "@/modules/sections/sections.routes";
 import assessmentsRouter from "@/modules/assessments/assessments.routes";
 import certificatesRouter from "@/modules/certificates/certificates.routes";
 import mentorshipRouter from "@/modules/mentorship/mentorship.routes";
+import usersRouter from "@/modules/users/users.routes";
 
 const router = Router();
 
@@ -25,5 +26,6 @@ router.use("/", assessmentsRouter);
 router.use("/", certificatesRouter);
 router.use("/", mentorshipRouter);
 router.use("/", enrollmentsRouter);
+router.use("/users", usersRouter);
 
 export default router;
