@@ -37,6 +37,7 @@ model User {
   mentorshipsAsStudent Mentorship[] @relation("StudentMentorships")
   mentorshipsAsEducator Mentorship[] @relation("EducatorMentorships")
   sentMessages       MentorshipMessage[]
+  auditLogs          AuditLog[]
 
   @@map("users")
 }
@@ -107,6 +108,7 @@ model AuditLog {
   entityType  String   @map("entity_type")
   entityId    String?  @map("entity_id") @db.Uuid
   performedBy String?  @map("performed_by") @db.Uuid
+  performer   User?    @relation(fields: [performedBy], references: [id], onDelete: SetNull)
   details     Json?
   ipAddress   String?  @map("ip_address")
   userAgent   String?  @map("user_agent")
