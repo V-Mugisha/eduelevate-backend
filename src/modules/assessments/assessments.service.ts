@@ -186,7 +186,12 @@ export async function getQuestionsForStudent(assessmentId: string, userId: strin
   const submittedIds = new Set(submissions.map((s) => s.questionId));
 
   return questions.map((q) => ({
-    ...q,
+    id: q.id,
+    title: q.title,
+    answerOptions: q.answerOptions,
+    grade: q.grade,
+    order: q.order,
+    correctAnswerCount: q.correctAnswers.length,
     isSubmitted: submittedIds.has(q.id),
   }));
 }

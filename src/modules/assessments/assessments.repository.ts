@@ -134,7 +134,7 @@ export function findQuestionsByAssessment(assessmentId: string) {
 export function findQuestionsByAssessmentForStudent(assessmentId: string) {
   return prisma.question.findMany({
     where: { assessmentId },
-    select: { id: true, title: true, answerOptions: true, grade: true, order: true },
+    select: { id: true, title: true, answerOptions: true, grade: true, order: true, correctAnswers: true },
     orderBy: { order: "asc" as const },
   });
 }

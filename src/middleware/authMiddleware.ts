@@ -1,5 +1,6 @@
 import type { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
+import { prisma } from "@/lib/prisma";
 
 const JWT_SECRET = process.env["JWT_SECRET"] ?? "eduelevate_jwt_secret_dev";
 
@@ -9,7 +10,7 @@ interface AuthPayload {
   role: string;
 }
 
-export function authenticate(req: Request, res: Response, next: NextFunction) {
+export async function authenticate(req: Request, res: Response, next: NextFunction) {
   const authHeader = req.headers.authorization;
   if (!authHeader || !authHeader.startsWith("Bearer ")) {
     res.status(401).json({ message: "Authentication required. Please provide a valid token." });
@@ -20,6 +21,16 @@ export function authenticate(req: Request, res: Response, next: NextFunction) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET) as AuthPayload;
+
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.userId },
+      select: { id: true },
+    });
+    if (!user) {
+      res.status(401).json({ message: "Account no longer exists. Please log in again." });
+      return;
+    }
+
     req.user = decoded;
     next();
   } catch {

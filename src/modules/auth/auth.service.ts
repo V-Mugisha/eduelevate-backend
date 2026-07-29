@@ -158,7 +158,7 @@ export async function login(data: LoginInput): Promise<AuthResponse> {
       details: { email: data.email, reason: "user_not_found" },
       status: "failure",
     }).catch(() => {});
-    throw new ServiceError("Invalid email or password", 401);
+    throw new ServiceError("Invalid email or password", 400);
   }
 
   if (!user.isActive) {
@@ -176,7 +176,7 @@ export async function login(data: LoginInput): Promise<AuthResponse> {
       details: { email: data.email, reason: "wrong_password" },
       status: "failure",
     }).catch(() => {});
-    throw new ServiceError("Invalid email or password", 401);
+    throw new ServiceError("Invalid email or password", 400);
   }
 
   const token = generateToken(user.id, user.email, user.firstName, user.lastName, user.role.name);
