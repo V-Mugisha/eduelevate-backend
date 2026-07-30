@@ -6,13 +6,7 @@ import { swaggerSpec } from "./swagger.js";
 import routes from "./routes/index.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import requestLogger from "./middleware/requestLogger.js";
-import {
-  authLimiter,
-  sensitiveLimiter,
-  uploadLimiter,
-  strictLimiter,
-  generalLimiter,
-} from "./middleware/rateLimiter.js";
+import { authLimiter, uploadLimiter } from "./middleware/rateLimiter.js";
 
 const app = express();
 const PORT = process.env.PORT ?? 3001;
@@ -26,12 +20,7 @@ app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 app.use("/api/auth/login", authLimiter);
 app.use("/api/auth/register", authLimiter);
-app.use("/api/auth/change-password", sensitiveLimiter);
 app.use("/api/upload", uploadLimiter);
-app.use("/api/courses", strictLimiter);
-app.use("/api/modules", strictLimiter);
-app.use("/api/lessons", strictLimiter);
-app.use("/api", generalLimiter);
 
 /**
  * @swagger
