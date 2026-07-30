@@ -32,16 +32,13 @@ Node.js + Express + TypeScript + Prisma backend for the EduElevate learning plat
    createdb eduelevate
    ```
 
-4. Create a `.env` file in the project root:
+4. Create a `.env` file from the example:
 
-   ```env
-   DATABASE_URL="postgresql://<user>:<password>@localhost:5432/eduelevate"
-   JWT_SECRET="your-secret-key"
-   CLOUDINARY_CLOUD_NAME=your-cloud-name
-   CLOUDINARY_API_KEY=your-api-key
-   CLOUDINARY_API_SECRET=your-api-secret
-   AUDIT_LOG_RETENTION_DAYS=90
+   ```bash
+   cp .env.example .env
    ```
+
+   Edit `.env` and fill in your PostgreSQL credentials, a JWT secret, and your Cloudinary keys.
 
 5. Run database migrations and seed:
 
